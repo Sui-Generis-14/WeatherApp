@@ -1,0 +1,410 @@
+{% extends 'weather_app/base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Weather Record{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>
+                    <i class="fas fa-{% if action == 'Create' %}plus{% else %}edit{% endif %} me-2"></i>
+                    {{ action }} Weather Record
+                </h2>
+                <p class="text-muted">
+                    {% if action == 'Create' %}
+                        Add a new weather record with location and date range information
+                    {% else %}
+                        Update the weather record for {{ record.location_name }}
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'weather_app:weather_records_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Records
+                </a>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Location Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.location_name.id_for_label }}" class="form-label">
+                                Location Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.location_name }}
+                            {% if form.location_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.location_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Enter the name of the location (e.g., New York, NY)</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.location_type.id_for_label }}" class="form-label">
+                                Location Type
+                            </label>
+                            {{ form.location_type }}
+                            {% if form.location_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.location_type.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.latitude.id_for_label }}" class="form-label">
+                                Latitude
+                            </label>
+                            {{ form.latitude }}
+                            {% if form.latitude.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.latitude.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Decimal degrees (e.g., 40.7128)</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.longitude.id_for_label }}" class="form-label">
+                                Longitude
+                            </label>
+                            {{ form.longitude }}
+                            {% if form.longitude.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.longitude.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Decimal degrees (e.g., -74.0060)</div>
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-calendar-alt me-2"></i>Date Range
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                Start Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.start_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                End Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.end_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Weather Data -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-cloud-sun me-2"></i>Weather Data
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.temperature_min.id_for_label }}" class="form-label">
+                                Minimum Temperature (°C)
+                            </label>
+                            {{ form.temperature_min }}
+                            {% if form.temperature_min.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.temperature_min.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.temperature_max.id_for_label }}" class="form-label">
+                                Maximum Temperature (°C)
+                            </label>
+                            {{ form.temperature_max }}
+                            {% if form.temperature_max.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.temperature_max.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.temperature_avg.id_for_label }}" class="form-label">
+                                Average Temperature (°C)
+                            </label>
+                            {{ form.temperature_avg }}
+                            {% if form.temperature_avg.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.temperature_avg.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.humidity.id_for_label }}" class="form-label">
+                                Humidity (%)
+                            </label>
+                            {{ form.humidity }}
+                            {% if form.humidity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.humidity.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.pressure.id_for_label }}" class="form-label">
+                                Pressure (hPa)
+                            </label>
+                            {{ form.pressure }}
+                            {% if form.pressure.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pressure.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.wind_speed.id_for_label }}" class="form-label">
+                                Wind Speed (m/s)
+                            </label>
+                            {{ form.wind_speed }}
+                            {% if form.wind_speed.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.wind_speed.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.wind_direction.id_for_label }}" class="form-label">
+                                Wind Direction
+                            </label>
+                            {{ form.wind_direction }}
+                            {% if form.wind_direction.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.wind_direction.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                Weather Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.icon.id_for_label }}" class="form-label">
+                                Weather Icon Code
+                            </label>
+                            {{ form.icon }}
+                            {% if form.icon.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.icon.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Weather icon code (auto-generated from weather data)</div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Data -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-chart-line me-2"></i>Additional Data
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.precipitation.id_for_label }}" class="form-label">
+                                Precipitation (mm)
+                            </label>
+                            {{ form.precipitation }}
+                            {% if form.precipitation.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.precipitation.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.visibility.id_for_label }}" class="form-label">
+                                Visibility (km)
+                            </label>
+                            {{ form.visibility }}
+                            {% if form.visibility.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.visibility.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.uv_index.id_for_label }}" class="form-label">
+                                UV Index
+                            </label>
+                            {{ form.uv_index }}
+                            {% if form.uv_index.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.uv_index.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                            </h5>
+                        </div>
+                        
+                        <div class="col-12 mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                Notes
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Add any additional notes or observations about this weather record</div>
+                        </div>
+                    </div>
+
+                    <!-- Form Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'weather_app:weather_records_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{{ action }} Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap validation classes
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+    });
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}
+
+
+
